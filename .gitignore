@@ -1,0 +1,7 @@
+# Python environment
+.venv
+requirements.txt
+
+# Jupyter Notebook
+*.ipynb
+
