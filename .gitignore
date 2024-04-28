@@ -5,3 +5,6 @@ requirements.txt
 # Jupyter Notebook
 *.ipynb
 
+# OS generated files
+.DS_Store
+
