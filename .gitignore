@@ -1,6 +1,7 @@
 # Python environment
 .venv
 requirements.txt
+**/__pycache__/
 
 # Jupyter Notebook
 *.ipynb
@@ -10,4 +11,7 @@ requirements.txt
 
 # Credential keys
 .env
+
+# Misc
+prompt.md
 
