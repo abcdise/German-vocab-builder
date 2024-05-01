@@ -4,7 +4,7 @@ requirements.txt
 **/__pycache__/
 
 # Jupyter Notebook
-*.ipynb
+playground.ipynb
 
 # OS generated files
 .DS_Store
