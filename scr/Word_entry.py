@@ -1,7 +1,4 @@
 import json
-from copy import deepcopy
-
-
 from abc import ABC, abstractmethod
 
 class Word_entry:
@@ -33,32 +30,4 @@ class Dictionary_reader(ABC):
     @abstractmethod
     def _update_word_entry_list(self, word_list:list) -> None:
         pass
-
-
-class PONS_reader(Dictionary_reader):
-    def __init__(self, json_path:str, word_list:list) -> None:
-        super().__init__(json_path, word_list)
-
-    def _update_word_entry_list(self, word_list: list) -> None:
-        for word in word_list:
-            word_entry = Word_entry(word)
-            definition_entries = self.dictionary.get(word, [])
-            if definition_entries:
-                for entry in definition_entries:
-                    definition_entry = dict()
-                    definition = entry['Definition']
-                    examples = entry['Beispiele']
-                    forms = entry['Formen']
-                    redewendungen = entry['Redewendungen']
-                    anwendung = entry['Anwendung']
-                    definition_entry['conjugation'] = forms
-                    definition_entry['definition'] = definition
-                    definition_entry['examples'] = redewendungen + examples
-                    definition_entry['part of speech'] = ''
-                    definition_entry['usage'] = anwendung
-                    word_entry.definition_entries.append(deepcopy(definition_entry))
-                
-                self.word_entry_list.append(deepcopy(word_entry))
-            else:
-                print(f'The word {word} does not exist in the json file!')
 

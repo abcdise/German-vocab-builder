@@ -8,9 +8,10 @@ from pathlib import Path
 import json
 from dotenv import load_dotenv
 import os
+from Word_entry import Word_entry, Dictionary_reader
 
 
-load_dotenv(dotenv_path='vars/.env')
+load_dotenv(dotenv_path='../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/vars/.env')
 api_key = os.getenv('PONS_API_KEY')
 
 
@@ -178,7 +179,7 @@ class PONS_entry:
     
 
 class PONS_writer:
-    def __init__(self, dictionary_path:str='scr/Dictionary/PONS.json') -> None:
+    def __init__(self, dictionary_path:str='../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/PONS.json') -> None:
         self.dictionary_json = Path(dictionary_path)
         if not self.dictionary_json.exists():
             with open(self.dictionary_json, 'w') as json_file:
@@ -317,3 +318,29 @@ class PONS_refiner:
     #     return dict_for_prompt
 
 
+class PONS_reader(Dictionary_reader):
+    def __init__(self, json_path:str, word_list:list) -> None:
+        super().__init__(json_path, word_list)
+
+    def _update_word_entry_list(self, word_list: list) -> None:
+        for word in word_list:
+            word_entry = Word_entry(word)
+            definition_entries = self.dictionary.get(word, [])
+            if definition_entries:
+                for entry in definition_entries:
+                    definition_entry = dict()
+                    definition = entry['Definition']
+                    examples = entry['Beispiele']
+                    forms = entry['Formen']
+                    redewendungen = entry['Redewendungen']
+                    anwendung = entry['Anwendung']
+                    definition_entry['conjugation'] = forms
+                    definition_entry['definition'] = definition
+                    definition_entry['examples'] = redewendungen + examples
+                    definition_entry['part of speech'] = ''
+                    definition_entry['usage'] = anwendung
+                    word_entry.definition_entries.append(deepcopy(definition_entry))
+                
+                self.word_entry_list.append(deepcopy(word_entry))
+            else:
+                print(f'The word {word} does not exist in the json file!')
