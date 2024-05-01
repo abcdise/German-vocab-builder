@@ -8,6 +8,7 @@ requirements.txt
 
 # OS generated files
 .DS_Store
+.vscode
 
 # Credential keys
 .env

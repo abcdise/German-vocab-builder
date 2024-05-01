@@ -177,16 +177,9 @@ class PONS_entry:
         return final_str
     
 
-class PONS:
-    def look_up(self, search_word:str):
-        entry = PONS_entry(word=search_word)
-        return entry.look_up()
-
-
 class PONS_writer:
-    def __init__(self, dictionary, dictionary_path:str='Dictionary/PONS.json') -> None:
+    def __init__(self, dictionary_path:str='scr/Dictionary/PONS.json') -> None:
         self.dictionary_json = Path(dictionary_path)
-        self.dictionary = dictionary
         if not self.dictionary_json.exists():
             with open(self.dictionary_json, 'w') as json_file:
                 json.dump({}, json_file)
@@ -199,8 +192,8 @@ class PONS_writer:
         self.new_entries = dict()
         for word in word_list:
             if word not in self.dic.keys():
-                entry = self.dictionary.look_up(word)
-                entry_detail = entry.get(word, [])
+                entry = PONS_entry(word=word)
+                entry_detail = entry.look_up().get(word, [])
                 if entry_detail:
                     self.new_entries[word] = entry.look_up()[word]
                 self.__refresh_dictionary()
