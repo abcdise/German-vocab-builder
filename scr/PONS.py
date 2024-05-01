@@ -13,6 +13,8 @@ from Word_entry import Word_entry, Dictionary_reader
 
 load_dotenv(dotenv_path='../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/vars/.env')
 api_key = os.getenv('PONS_API_KEY')
+original_json_path = '../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/PONS.json'
+refined_json_path = '../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/Refined PONS.json'
 
 
 class PONS_entry:
@@ -179,7 +181,7 @@ class PONS_entry:
     
 
 class PONS_writer:
-    def __init__(self, dictionary_path:str='../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/PONS.json') -> None:
+    def __init__(self, dictionary_path:str=original_json_path) -> None:
         self.dictionary_json = Path(dictionary_path)
         if not self.dictionary_json.exists():
             with open(self.dictionary_json, 'w') as json_file:
@@ -207,7 +209,7 @@ class PONS_writer:
 
 
 class PONS_refiner:
-    def __init__(self, original_dictionary_path: str, refined_dictionary_path:str):
+    def __init__(self, original_dictionary_path:str=original_json_path, refined_dictionary_path:str=refined_json_path):
         self.original_dictionary_json = Path(original_dictionary_path)
         self.refined_dictionary_json = Path(refined_dictionary_path)
         if not self.original_dictionary_json.exists():
@@ -319,7 +321,7 @@ class PONS_refiner:
 
 
 class PONS_reader(Dictionary_reader):
-    def __init__(self, json_path:str, word_list:list) -> None:
+    def __init__(self, word_list:list, json_path:str=refined_json_path) -> None:
         super().__init__(json_path, word_list)
 
     def _update_word_entry_list(self, word_list: list) -> None:
