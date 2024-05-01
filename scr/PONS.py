@@ -260,6 +260,7 @@ class PONS_refiner:
                         for i in range(len(new_entry_list)):
                             filtered_original_entry = {k:v for k, v in original_entry_list[i].items() if k not in new_entry_list[i].keys()}
                             new_entry_list[i].update(filtered_original_entry)
+                            new_entry_list[i]['Beispiele'] += original_entry_list[i]['Beispiele']
                         result_dict[headword] = deepcopy(new_entry_list)
                     else:
                         print(f'The number of definitions of the word {headword} does not match!')
