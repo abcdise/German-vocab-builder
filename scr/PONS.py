@@ -13,6 +13,7 @@ import os
 load_dotenv(dotenv_path='vars/.env')
 api_key = os.getenv('PONS_API_KEY')
 
+
 class PONS_entry:
     def __init__(self, word:str) -> None:
         self.word = word
@@ -176,8 +177,14 @@ class PONS_entry:
         return final_str
     
 
+class PONS:
+    def look_up(self, search_word:str):
+        entry = PONS_entry(word=search_word)
+        return entry.look_up()
+
+
 class PONS_writer:
-    def __init__(self, dictionary, dictionary_path:str) -> None:
+    def __init__(self, dictionary, dictionary_path:str='Dictionary/PONS.json') -> None:
         self.dictionary_json = Path(dictionary_path)
         self.dictionary = dictionary
         if not self.dictionary_json.exists():
@@ -192,8 +199,8 @@ class PONS_writer:
         self.new_entries = dict()
         for word in word_list:
             if word not in self.dic.keys():
-                entry = PONS_entry(word)
-                entry_detail = entry.look_up().get(word, [])
+                entry = self.dictionary.look_up(word)
+                entry_detail = entry.get(word, [])
                 if entry_detail:
                     self.new_entries[word] = entry.look_up()[word]
                 self.__refresh_dictionary()
