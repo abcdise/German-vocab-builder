@@ -6,7 +6,6 @@ import urllib.request
 from numpy import random
 import csv
 import re
-# from Word_entry import Word_entry
 
 
 class Configurator:
@@ -142,7 +141,7 @@ class AnkiCardWriter:
         self.word_entry_list = word_entry_list
         self.Anki_cards = []
 
-    def write_cards(self, csv_path = str, shuffle_cards=True):
+    def write_cards(self, csv_path:str, shuffle_cards=True):
         self.__write_cards(self.word_entry_list)
         if shuffle_cards:
             random.shuffle(self.Anki_cards)

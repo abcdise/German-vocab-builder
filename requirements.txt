@@ -1,0 +1,11 @@
+numpy
+pyperclip
+requests
+python-dotenv
+bs4
+breame
+jinja2
+spacy
+
+
+

@@ -8,13 +8,12 @@ from pathlib import Path
 import json
 from dotenv import load_dotenv
 import os
-from Word_entry import Word_entry, Dictionary_reader
 
 
-load_dotenv(dotenv_path='../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/vars/.env')
+load_dotenv(dotenv_path='../../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/vars/.env')
 api_key = os.getenv('PONS_API_KEY')
-original_json_path = '../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/PONS.json'
-refined_json_path = '../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/Refined PONS.json'
+original_json_path = '../../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/PONS.json'
+refined_json_path = '../../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/Refined PONS.json'
 
 
 class PONS_entry:
@@ -31,6 +30,7 @@ class PONS_entry:
         self.__parse_headword()
         return self.dictionary
     
+
     def __get_raw_entry(self, api_key) -> None:
         url = "https://api.pons.com/v1/dictionary"
         headers = {"X-Secret": api_key}
@@ -193,19 +193,37 @@ class PONS_writer:
     
     def look_up(self, word_list: list):
         self.new_entries = dict()
+        word_list_in_PONS = []
         for word in word_list:
             if word not in self.dic.keys():
                 entry = PONS_entry(word=word)
                 entry_detail = entry.look_up().get(word, [])
                 if entry_detail:
                     self.new_entries[word] = entry.look_up()[word]
+                if entry.raw_entry:
+                    word_list_in_PONS.append(word)
                 self.__refresh_dictionary()
+        self.__add_words_to_config(word_list_in_PONS)
 
     
     def __refresh_dictionary(self):
         self.dic.update(self.new_entries)
         with open(self.dictionary_json, 'w') as json_file:
             json.dump(self.dic, json_file, indent=4, ensure_ascii=False)
+
+
+    def __add_words_to_config(self, word_list:list) -> None:
+        with open('../scr/config/Vocab Builder/config.json') as file:
+            config = json.load(file)
+
+        current_all_list = set(config['all'])
+        for word in word_list:
+            if word not in current_all_list:
+                config['all'].append(word)
+                config['new'].append(word)
+
+        with open('../scr/config/Vocab Builder/config.json', 'w') as file:
+            json.dump(config, file, indent=4, ensure_ascii=False)
 
 
 class PONS_refiner:
@@ -256,14 +274,13 @@ class PONS_refiner:
                 if headword not in self.refined_dict.keys():
                     original_entry_list = self.original_dict[headword]
                     new_entry_list = import_dict[headword]
-                    if len(original_entry_list) == len(new_entry_list):
-                        for i in range(len(new_entry_list)):
-                            filtered_original_entry = {k:v for k, v in original_entry_list[i].items() if k not in new_entry_list[i].keys()}
-                            new_entry_list[i].update(filtered_original_entry)
-                            new_entry_list[i]['Beispiele'] += original_entry_list[i]['Beispiele']
-                        result_dict[headword] = deepcopy(new_entry_list)
-                    else:
-                        print(f'The number of definitions of the word {headword} does not match!')
+                    for i in range(len(new_entry_list)):
+                        filtered_original_entry = {k:v for k, v in original_entry_list[i].items() if k not in new_entry_list[i].keys()}
+                        new_entry_list[i].update(filtered_original_entry)
+                        if not original_entry_list[i]['Anwendung']:
+                            new_entry_list[i]['Anwendung'] = ''
+                        new_entry_list[i]['Beispiele'] += original_entry_list[i]['Beispiele']
+                    result_dict[headword] = deepcopy(new_entry_list)
                 else:
                     print(f'The word {headword} has been refined.')
             else:
@@ -319,31 +336,3 @@ class PONS_refiner:
     #             abridged_entry_list.append(deepcopy(abridged_entry))
     #         dict_for_prompt[word] = deepcopy(abridged_entry_list)
     #     return dict_for_prompt
-
-
-class PONS_reader(Dictionary_reader):
-    def __init__(self, word_list:list, json_path:str=refined_json_path) -> None:
-        super().__init__(json_path, word_list)
-
-    def _update_word_entry_list(self, word_list: list) -> None:
-        for word in word_list:
-            word_entry = Word_entry(word)
-            definition_entries = self.dictionary.get(word, [])
-            if definition_entries:
-                for entry in definition_entries:
-                    definition_entry = dict()
-                    definition = entry['Definition']
-                    examples = entry['Beispiele']
-                    forms = entry['Formen']
-                    redewendungen = entry['Redewendungen']
-                    anwendung = entry['Anwendung']
-                    definition_entry['conjugation'] = forms
-                    definition_entry['definition'] = definition
-                    definition_entry['examples'] = redewendungen + examples
-                    definition_entry['part of speech'] = ''
-                    definition_entry['usage'] = anwendung
-                    word_entry.definition_entries.append(deepcopy(definition_entry))
-                
-                self.word_entry_list.append(deepcopy(word_entry))
-            else:
-                print(f'The word {word} does not exist in the json file!')

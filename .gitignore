@@ -1,6 +1,5 @@
 # Python environment
 .venv
-requirements.txt
 **/__pycache__/
 
 # Jupyter Notebook
@@ -16,4 +15,8 @@ playground.ipynb
 # Misc
 prompt.md
 **/Dictionary/
+vocab notes.csv
+phrase notes.json
+test.json
+
 
