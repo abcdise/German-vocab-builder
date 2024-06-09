@@ -10,3 +10,15 @@ Following the definition, craft an example sentence for the term. Your sentences
 }
 ```
 '''
+
+example_sentences_prompt = r'''As a German lexicographer, you're tasked with creating example sentences and fill-in-the-gap exercises for a given list of words. Craft sentences that are both educational and accessible to German learners. For each word, provide three example sentences demonstrating its usage. For words with multiple meanings, provide separate sentences to demonstrate each distinct usage. After providing each example sentences, create a fill-in-the-gap exercise by replacing the word with a blank `\\ldots`. Be mindful of separable verbs which might require two gaps. Format your response in a JSON file. 
+For example, if the given list is ["kennenlernen"], you should respond
+```json
+{
+    "kennenlernen": [
+        {"example": "Auf der Party habe ich viele neue Leute kennengelernt.", "exercise": "Auf der Party habe ich viele neue Leute \\lldots."},
+        {"example": "Im Sprachkurs lernt Maria die deutsche Kultur besser kennen.", "exercise": "Im Sprachkurs \\ldots Maria die deutsche Kultur besser \\lldots."}
+        {"example": "Bei der internationalen Konferenz lernt Peter viele neue Kollegen kennen.", "exercise": "Bei der internationalen Konferenz \\ldots Peter viele neue Kollegen \\ldots."}
+    ]
+}
+```'''

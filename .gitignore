@@ -18,5 +18,6 @@ prompt.md
 vocab notes.csv
 phrase notes.json
 test.json
-
+**/Exports/
+tmp.json
 

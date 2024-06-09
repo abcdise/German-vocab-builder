@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 from copy import deepcopy
 import requests
-import urllib.request
 from numpy import random
 import csv
 import re
@@ -77,61 +76,45 @@ class Configurator:
 
 
 class AnkiCommunicator:
+    def __init__(self):
+        self.base_url = 'http://localhost:8765'
 
     def __get_request(self, action, params):
         return {'action': action, 'params': params, 'version': 6}
     
-
     def __invoke(self, action, params):
-        requestJson = json.dumps(self.__get_request(action, params)).encode('utf-8')
-        response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
-        if 'error' not in response or response['error'] is not None:
-            raise Exception('Failed to fetch card info: {}'.format(response.get('error')))
-        return response['result']
-    
+        data = json.dumps(self.__get_request(action, params))
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(self.base_url, data=data, headers=headers)
+        response_json = response.json()
+        if 'error' in response_json and response_json['error']:
+            raise Exception(f'Failed to fetch card info: {response_json["error"]}')
+        return response_json['result']
 
-    def __get_cards_id_in_n_days(self, n:int, deck_name:str):
-        param = dict()
-        param['query'] = f'prop:due<{n} deck:"{deck_name}"'
-        
-        data = self.__get_request('findNotes', param)
-        response = requests.post('http://localhost:8765', json=data)
-        notes = response.json().get('result', [])
-        return notes
-    
+    def __get_cards_id_in_n_days(self, n, deck_name):
+        query = f'prop:due<={n} deck:"{deck_name}"'
+        response = self.__invoke('findNotes', {'query': query})
+        return response
 
-    def get_words_in_n_days(self, n:int, deck_name:str, item:str):
-        '''
-        Get the card content from the cards that are due in `n` days.
-        For `item`, possible options are `Front`, `Back`.
-        '''
-        card_ids = self.__get_cards_id_in_n_days(n=n, deck_name=deck_name)
-        result = self.__invoke('cardsInfo', {'cards': card_ids})
-        info_list = []
-        for elem in result:
-            info = elem['fields'][item]['value']
-            info_list.append(self._extract_word_from_front(info))
+    def get_words_in_n_days(self, n, deck_name, item):
+        card_ids = self.__get_cards_id_in_n_days(n, deck_name)
+        if not card_ids:
+            return []
+        cards_info = self.__invoke('cardsInfo', {'cards': card_ids})
+        words = {self._extract_word_from_field(card['fields'][item]['value']) for card in cards_info if card}
+        return list(words)
 
-        return list(set(info_list))
+    def get_words_for_tomorrow(self, deck_name, item):
+        return self.get_words_in_n_days(1, deck_name, item)
 
-
-    def get_words_for_tomorrow(self, deck_name:str, item:str):
-        return self.get_words_in_n_days(n=1, deck_name=deck_name, item=item)
-
-
-    def _extract_word_from_front(self, input_string:str):
-        '''
-        The function extract the string between the <b> tags.
-        '''
-        pattern = r'<b>(.*?)</b>'
-        match = re.search(pattern, input_string)
-        if match:
-            return match.group(1)
+    def _extract_word_from_field(self, input_string):
+        matches = re.findall(r'<b>(.*?)</b>', input_string)
+        if matches:
+            return matches[0]
         else:
-            print(f'There is something wrong in the card {input_string}')
+            print(f'There is something wrong in the card: {input_string}')
             return None
 
-        
 
 class AnkiCardWriter:
     '''
@@ -141,7 +124,7 @@ class AnkiCardWriter:
         self.word_entry_list = word_entry_list
         self.Anki_cards = []
 
-    def write_cards(self, csv_path:str, shuffle_cards=True):
+    def write_cards(self, csv_path = str, shuffle_cards=True):
         self.__write_cards(self.word_entry_list)
         if shuffle_cards:
             random.shuffle(self.Anki_cards)
