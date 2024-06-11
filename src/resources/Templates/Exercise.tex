@@ -1,6 +1,7 @@
 \documentclass{article}
 \title{Exercise Sheet}
-\usepackage[british]{babel}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
 \usepackage{multicol}
 \usepackage{dialogue}
 \usepackage[a4paper, total={6in, 8in}]{geometry}
@@ -20,24 +21,36 @@
 \newcommand{\trianglebullet}{$\triangleright$ }
 \newcommand{\vocabulary}[2]{
 
-\vspace{4ex}
+\vspace{2ex}
+\noindent \textbf{#1}{#2}}
 
-\noindent \textbf{{#1}} \quad {#2} 
+\newcommand{\gerdefitem}[4]{
 
-}
-\newcommand{\defitem}[4]{\noindent \trianglebullet {#1} \ {#2} \ {#3}
+\noindent \trianglebullet \texttt{#1} \texttt{#2}
+
+
+\noindent{#3}
+
 
 \vspace{-1.5ex}
 
 \begin{displayquote}
-\textit{#4}
+\textit{#3}
 \end{displayquote}
-
-
 }
+	
+
 \begin{document}
 
 \section{Vocabulary Notes}
+
+
+
+
+
+
+
+
 
 %\subfile{./Definition/output_1.tex}
 %\subfile{./Definition/output_2.tex}

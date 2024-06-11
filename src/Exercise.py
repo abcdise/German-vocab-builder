@@ -12,7 +12,7 @@ def detect_solution(original_text: str, manipulated_text: str) -> list:
     original_text_list = original_text.split(' ')
     manipulated_text_list = manipulated_text.split(' ')
     # Find the index of the word that has been replaced by \\ldots in manupulated_text
-    index = [i for i, j in enumerate(manipulated_text_list) if j == r'\ldots']
+    index = [i for i, j in enumerate(manipulated_text_list) if j == r'\\ldots']
     # Find the word that has been replaced by \\ldots in original_text
     return [original_text_list[i] for i in index]
 
@@ -144,17 +144,22 @@ class Definition(Exercise):
             def_text = ''
             for word in self.word_list:
                 if word in dictionary:
-                    def_text += r'vocabulary{' + word + r'}'
+                    def_text += r'\vocabulary{' + word + r'}'
                     def_text += r'{}' + '\n'
                     for entry in dictionary[word]:
-                        def_text += r'\german_defitem{' + entry['Formen'] + r'}'
+                        forms = entry['Formen']
+                        if forms:
+                            forms += ';'
+                        def_text += r'\gerdefitem{' + forms + r'}'
                         usage = entry['Anwendung']
+                        if usage:
+                            usage += ';'
                         def_text += r'{' + usage + r'}'
                         definition = entry['Definition']
                         definition = self._string_processing(definition)
                         def_text += r'{' + definition + r'}'
-                        if entry['example_sentences']:
-                            sentence = entry['example_sentences'][0]
+                        if entry['Beispiele']:
+                            sentence = entry['Beispiele'][0]
                             sentence = self._string_processing(sentence)
                             def_text += r'{' + sentence + r'}' + '\n'
                         else:
