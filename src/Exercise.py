@@ -1,23 +1,28 @@
 import pyperclip
 from abc import ABC, abstractmethod
-import re
 from copy import deepcopy
 import random
 import prompts
 import json
 from pathlib import Path
+import string
 
+def remove_punctuation(input_string):
+    # Create translation table
+    translator = str.maketrans('', '', string.punctuation)
+    
+    # Remove punctuation using translation table
+    return input_string.translate(translator)
 
 def detect_solution(original_text: str, manipulated_text: str) -> list:
     original_text_list = original_text.split(' ')
     manipulated_text_list = manipulated_text.split(' ')
     # Find the index of the word that has been replaced by \\ldots in manupulated_text
-    index = [i for i, j in enumerate(manipulated_text_list) if j == r'\\ldots']
+    index = [i for i, j in enumerate(manipulated_text_list) if r'\ldots' in j]
     # Find the word that has been replaced by \\ldots in original_text
-    return [original_text_list[i] for i in index]
+    return [remove_punctuation(original_text_list[i]) for i in index]
 
 
-    
 def json_string_to_dict(json_string: str):
     try:
         # Convert the JSON string to a Python dictionary
@@ -178,8 +183,6 @@ class Definition(Exercise):
         self.exercise_dict['definition'] = self.definition
 
 
-
-
 class ExampleSentences(Exercise):
     example_sentences: dict = dict()
     example_sentences_with_analysis: dict = dict()
@@ -236,9 +239,8 @@ class FillInTheGapExercise(Exercise):
         for word, sentence_list in aug_dict.items():
             for original_sentence in sentence_list:
                 question = original_sentence['exercise']
-                sol_list = detect_solution(original_text=question,
-                                           manipulated_text=original_sentence['exercise'])            
-                question.replace(r'\\ldots', r'\ldots')
+                sol_list = detect_solution(original_text=original_sentence['example'],
+                                           manipulated_text=question)   
                 exercise_list.append((question, ', '.join(sol_list)))
     
         random.shuffle(exercise_list)
@@ -257,7 +259,6 @@ class FillInTheGapExercise(Exercise):
     def generate_solution(self, aug_dict: dict):
         None
     
-
 
 class DialogueExercise(Exercise):
     """
@@ -308,7 +309,7 @@ class DialogueExercise(Exercise):
                 self.phrase_dict = json.load(file)
             for word in self.word_list:
                 if word in self.phrase_dict.keys():
-                    self.abridged_phrase_dict[word] = self.phrase_dict[word][1][0]['definition']
+                    self.abridged_phrase_dict[word] = self.phrase_dict[word][0]['Definition']
                 else:
                     raise ValueError(f'The term {word} does not exist in the reference dictionary.')
         except FileNotFoundError:

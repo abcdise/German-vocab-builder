@@ -71,7 +71,7 @@ class Configurator:
 
     def __export(self):
         with open(self.json_path, 'w') as file:
-            json.dump(self.config, file, indent=4)
+            json.dump(self.config, file, indent=4, ensure_ascii=False)
 
 
 

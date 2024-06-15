@@ -16,9 +16,26 @@ For example, if the given list is ["kennenlernen"], you should respond
 ```json
 {
     "kennenlernen": [
-        {"example": "Auf der Party habe ich viele neue Leute kennengelernt.", "exercise": "Auf der Party habe ich viele neue Leute \\lldots."},
+        {"example": "Die Reise nach Japan war eine großartige Gelegenheit, die Kultur und die Menschen kennenzulernen.", "exercise": "Die Reise nach Japan war eine großartige Gelegenheit, die Kultur und die Menschen \\ldots."},
         {"example": "Im Sprachkurs lernt Maria die deutsche Kultur besser kennen.", "exercise": "Im Sprachkurs \\ldots Maria die deutsche Kultur besser \\lldots."}
         {"example": "Bei der internationalen Konferenz lernt Peter viele neue Kollegen kennen.", "exercise": "Bei der internationalen Konferenz \\ldots Peter viele neue Kollegen \\ldots."}
     ]
 }
 ```'''
+
+dialogue_exercise_prompt = r'''As a German lexicographer, your task is to generate brief example dialogues containing only two exchanges between two characters for the given terms. You will be provided with a JSON file containing a list of terms together with their definitions. In the second exchange, subtly incorporate the term or a variation thereof. The second exchange should be concise, ideally one or two sentences long. Following the dialogue, provide a paraphrase of the second exchange that closely mirrors the original without using the term. Finally, insert a keyword from the term in the field "Keyword". For example, given the JSON file:
+```json
+{"nicht nur ... sondern auch ...": "Nicht nur, sondern auch ist eine Konjunktion, die verwendet wird, um zwei positive Eigenschaften oder Zustände zu betonen."}
+```
+your response should be
+```json
+{
+"nicht nur ... sondern auch ...":{
+  "A": "Gibt es noch andere Gründe, warum du dich hier wohl fühlst?",
+  "B": "Ja, die Bezahlung ist nicht nur fair, sondern auch die Weiterbildungsmöglichkeiten sind ausgezeichnet.",
+  "Paraphrase": "Ja, die Bezahlung ist fair und zusätzlich sind die Weiterbildungsmöglichkeiten ausgezeichnet.",
+  "Keyword": "sondern"
+}
+}
+```
+'''
