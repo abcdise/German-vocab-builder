@@ -152,8 +152,8 @@ class Definition(Exercise):
                     def_text += r'\vocabulary{' + word + r'}'
                     def_text += r'{}' + '\n'
                     for entry in dictionary[word]:
-                        forms = entry['Formen']
-                        if forms:
+                        forms = r'\trianglebullet ' + entry['Formen']
+                        if forms != r'\trianglebullet ':
                             forms += ';'
                         def_text += r'\gerdefitem{' + forms + r'}'
                         usage = entry['Anwendung']
@@ -339,7 +339,7 @@ class DialogueExercise(Exercise):
         sol = r'\begin{enumerate}' + '\n'
         index = 1
         for _, dialogue in dialogue_dict.items():
-            ex += r'\noindent \textbf{Dialogue ' + str(index) + '}\n'
+            ex += r'\noindent \textbf{Dialog ' + str(index) + '}\n'
             ex += r'\vspace{-1ex}' + '\n'
             ex += r'\begin{dialogue}' '\n'
             ex += r'\speak{A} ' + dialogue['A'] + '\n'
