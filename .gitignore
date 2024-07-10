@@ -17,6 +17,7 @@ prompt.md
 **/Dictionary/
 vocab notes.csv
 phrase notes.json
+vocab notes.json
 test.json
 **/Exports/
 tmp.json
