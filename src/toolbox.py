@@ -91,21 +91,25 @@ class AnkiCommunicator:
             raise Exception(f'Failed to fetch card info: {response_json["error"]}')
         return response_json['result']
 
-    def __get_cards_id_in_n_days(self, n, deck_name):
-        query = f'prop:due<={n} deck:"{deck_name}"'
-        response = self.__invoke('findNotes', {'query': query})
+    def __get_cards_id_in_n_days(self, n):
+        query = f'prop:due<={n}'
+        response = self.__invoke('findCards', {'query': query})
         return response
 
-    def get_words_in_n_days(self, n, deck_name, item):
-        card_ids = self.__get_cards_id_in_n_days(n, deck_name)
+    def get_words_in_n_days(self, n, deck_name):
+        card_ids = self.__get_cards_id_in_n_days(n)
         if not card_ids:
-            return []
+            return [], dict()
         cards_info = self.__invoke('cardsInfo', {'cards': card_ids})
-        words = {self._extract_word_from_field(card['fields'][item]['value']) for card in cards_info if card}
-        return list(words)
+        result_list = [(self._extract_word_from_field(card['fields']['Front']['value']), self._extract_def_from_field(card['fields']['Back']['value'])) \
+                       for card in cards_info if card and card['deckName'] == deck_name]
+        result_dict = dict()
+        for term_def in result_list:
+            result_dict[term_def[0]] = result_dict.get(term_def[0], []) + [term_def[1]]
+        return result_dict
 
-    def get_words_for_tomorrow(self, deck_name, item):
-        return self.get_words_in_n_days(1, deck_name, item)
+    def get_words_for_tomorrow(self, deck_name):
+        return self.get_words_in_n_days(1, deck_name)
 
     def _extract_word_from_field(self, input_string):
         matches = re.findall(r'<b>(.*?)</b>', input_string)
@@ -114,6 +118,18 @@ class AnkiCommunicator:
         else:
             print(f'There is something wrong in the card: {input_string}')
             return None
+        
+    def _extract_def_from_field(self, input_string):
+        rows = input_string.split('<br><br>')
+        # If the length of the rows is greater than 2, then check if the third row contains Chinese characters
+        if len(rows) > 2:
+            # If the third row contains Chinese characters, then return the second row as the definition
+            if re.search(r'[\u4e00-\u9fff]', rows[2]):
+                return rows[1]
+            else:
+                return rows[2]
+        else: # If the 
+            return rows[1]
 
 
 class AnkiCardWriter:

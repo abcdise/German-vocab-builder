@@ -3,7 +3,7 @@ from copy import deepcopy
 from abc import ABC, abstractmethod
 
 pons_json_path = '../../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/PONS.json'
-refined_pons_json_path = '../../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/Refined PONS.json'
+refined_pons_json_path = '../../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/Copilot Dictionary.json'
 phrase_json_path = '../../../../../Library/Mobile Documents/com~apple~CloudDocs/Projects/Vocab Builder/German/Dictionary/Phrase.json'
 
 
@@ -31,6 +31,18 @@ class DictionaryReader(ABC):
     def get_word_entry_list(self):
         self._update_word_entry_list(self.word_list)
         return self.word_entry_list
+    
+
+    def get_concise_dictionary(self):
+        concise_dictionary = dict()
+        for i in range(len(self.word_list)):
+            word = self.word_list[i]
+            definitions = []
+            for entry in self.word_entry_list[i].definition_entries:
+                definition = entry['definition']
+                definitions.append(definition)
+            concise_dictionary[word] = definitions
+        return concise_dictionary
 
 
     @abstractmethod
@@ -52,11 +64,10 @@ class GermanDictionaryReader(DictionaryReader):
                     definition = entry['Definition']
                     examples = entry['Beispiele']
                     forms = entry['Formen']
-                    redewendungen = entry['Redewendungen']
                     anwendung = entry['Anwendung']
                     definition_entry['conjugation'] = forms
                     definition_entry['definition'] = definition
-                    definition_entry['examples'] = redewendungen + examples
+                    definition_entry['examples'] = examples
                     definition_entry['part of speech'] = ''
                     definition_entry['usage'] = anwendung
                     word_entry.definition_entries.append(deepcopy(definition_entry))
@@ -66,11 +77,11 @@ class GermanDictionaryReader(DictionaryReader):
                 print(f'The word {word} does not exist in the json file!')
 
 
-class PONSReader(GermanDictionaryReader):
+class GermanWordReader(GermanDictionaryReader):
     def __init__(self, word_list: list) -> None:
         super().__init__(json_path=refined_pons_json_path, word_list=word_list)
 
 
-class PhraseReader(GermanDictionaryReader):
+class GermanPhraseReader(GermanDictionaryReader):
     def __init__(self, word_list: list) -> None:
         super().__init__(json_path=phrase_json_path, word_list=word_list)
